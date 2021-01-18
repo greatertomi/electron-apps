@@ -2,35 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="content-security-policy" content="script-src 'self' 'unsafe-inline'" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Video Info</title>
+    <title>Image Shrink</title>
   </head>
   <body>
-    <h1>Video Info</h1>
-    <form>
-      <div>
-        <label>Select a video</label>
-        <input type="file" accept="video/*" />
-      </div>
-      <button type="submit">Get Info</button>
-    </form>
-    <h3 id="result"></h3>
+    <h1>Image Shrink</h1>
   </body>
 
   <script>
-    const electron = require('electron');
-    const { ipcRenderer } = electron;
-    document.querySelector('form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const { path } = document.querySelector('input').files[0];
 
-      ipcRenderer.send('videoPath', path);
-    });
-
-    ipcRenderer.on('video:metadata', (event, duration) => {
-      document.getElementById(
-        'result'
-      ).innerHTML = `Video is ${duration} seconds`;
-    });
   </script>
 </html>

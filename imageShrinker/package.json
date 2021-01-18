@@ -4,12 +4,12 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "electron": "electron ."
+    "start": "electron .",
+    "dev": "nodemon --exec electron ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^11.2.0",
-    "fluent-ffmpeg": "^2.1.2"
+    "electron": "^11.2.0"
   }
 }
