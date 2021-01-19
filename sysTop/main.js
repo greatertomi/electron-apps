@@ -1,21 +1,32 @@
-const { app, BrowserWindow, Menu } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const log = require('electron-log')
+const Store = require('./app/js/Store')
 
 // Set env
 process.env.NODE_ENV = 'development'
 
-const isDev = process.env.NODE_ENV !== 'production' ? true : false
-const isMac = process.platform === 'darwin' ? true : false
+const isDev = process.env.NODE_ENV !== 'production'
+const isMac = process.platform === 'darwin'
 
 let mainWindow
 
+const store = new Store({
+  configName: 'user-settings',
+  default: {
+    settings: {
+      cpuOverload: 80,
+      alertFrequency: 5
+    }
+  }
+})
+
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    title: 'APP NAME',
-    width: isDev ? 800 : 500,
-    height: 600,
+    title: 'SysTop',
+    width: isDev ? 800 : 355,
+    height: 500,
     icon: './assets/icons/icon.png',
-    resizable: isDev ? true : false,
+    resizable: isDev,
     backgroundColor: 'white',
     webPreferences: {
       nodeIntegration: true,
@@ -32,8 +43,18 @@ function createMainWindow() {
 app.on('ready', () => {
   createMainWindow()
 
+  mainWindow.webContents.on('dom-ready', () => {
+    mainWindow.webContents.send('settings:get', store.get('settings'))
+  })
+
   const mainMenu = Menu.buildFromTemplate(menu)
   Menu.setApplicationMenu(mainMenu)
+})
+
+// Set Settings
+ipcMain.on('settings:set', (e, value) => {
+  store.set('settings', value)
+  mainWindow.webContents.send('settings:get', store.get('settings'))
 })
 
 const menu = [
