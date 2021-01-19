@@ -1,6 +1,9 @@
 const path = require('path')
 const url = require('url')
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const connectDB = require('./config/db')
+const Log = require('./models/Log')
+connectDB();
 
 let mainWindow
 
@@ -66,6 +69,36 @@ function createMainWindow() {
 }
 
 app.on('ready', createMainWindow)
+
+const sendLogs = async () => {
+	try {
+		const logs = await Log.find().sort({created: 1})
+		mainWindow.webContents.send('logs:get', JSON.stringify(logs))
+	} catch (err) {
+		console.log(err)
+	}
+}
+
+ipcMain.on('logs:delete', async (e, id) => {
+	try {
+		await Log.findOneAndDelete({_id: id})
+		await sendLogs();
+	} catch (err) {
+		console.log(err)
+	}
+})
+
+ipcMain.on('logs:load', sendLogs)
+
+ipcMain.on('logs:add', async (e, item) => {
+	console.log(item)
+	try {
+		await Log.create(item)
+		await sendLogs()
+	} catch (err) {
+		console.log(err)
+	}
+})
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
